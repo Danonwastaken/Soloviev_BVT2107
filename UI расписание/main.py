@@ -107,10 +107,8 @@ class MainWindow(QWidget):
         recors_subj = list(self.cursor.fetchall())
         self.names = {rname:rpublicname for (rname,rpublicname) in recors_subj}
         self.publicnames = {rpublicname:rname for (rname,rpublicname) in recors_subj}
-        #print(self.names)
         self.monday_table.setRowCount(self.row_max)
         for i, r in enumerate(self.records):
-           # print(r)
             r = list(r)
             drop_button1 = QPushButton("Delete")
             drop_button2 = QPushButton("Delete")
@@ -140,10 +138,6 @@ class MainWindow(QWidget):
             self.monday_table.setItem(j, 3, QTableWidgetItem(None))  # Room
 
     def _delete_row(self, rowNum):
-        #try:
-            #print(self.records[rowNum])
-        #except:
-         #   return
         try:
             self.cursor.execute(f"DELETE FROM service.timetable WHERE id = {self.records[rowNum][0]};")
             self.conn.commit()
@@ -160,7 +154,6 @@ class MainWindow(QWidget):
                     row.append(self.monday_table.item(j, i).text())
                 except:
                     row.append(None)
-            #try:
 
             self.cursor.execute(f"UPDATE service.timetable SET start_time = '{row[0]}' WHERE id = {self.records[j][0]}")
             self.cursor.execute(f"UPDATE service.subject SET public_name = '{row[1]}' WHERE name = '{self.records[j][2]}'")
@@ -168,10 +161,7 @@ class MainWindow(QWidget):
             self.cursor.execute(f"UPDATE service.timetable SET room_numb = '{row[3]}' WHERE id = {self.records[j][0]}")
 
             self.conn.commit() 
-            #except:
-                #QMessageBox.about(self, "Error", "SQL UPDATE error") 
 
-        # Insert row
         for j in range(len(self.records), self.row_max):
             row = list()
             for i in range(self.monday_table.columnCount() - 1):
@@ -180,31 +170,13 @@ class MainWindow(QWidget):
                 except:
                     row.append(None)
 
-            #try:
-
             if any([(e == '' or e == ' ') for e in row]):
                 continue
            
-           # print(row)
-           # print('row') #['12:00', 'qwe', 'ewq', '1']
             if not(row[1] in self.names):
                 self.cursor.execute(f"insert into service.subject (name,public_name) values ('{row[1]}','{row[1]}')")
             self.cursor.execute(f"insert into service.timetable (start_time,day,subject,migalka,room_numb) values ('{row[0]}','{self.day_of_week}','{row[1]}','{row[2]}',{row[3]})")
             self.conn.commit()
-            #self.cursor.execute("SELECT id FROM service.subject ORDER BY id DESC LIMIT 1;")
-            #self.last_id_sub = self.cursor.fetchall()[0][0] + 1
-            #self.cursor.execute(f"INSERT INTO service.subject(name) VALUES ({self.last_id_sub}, '{row[1]}');")
-            #self.cursor.execute("SELECT id FROM service.timetable ORDER BY id DESC LIMIT 1;")
-            #self.last_id_tb = self.cursor.fetchall()[0][0] + 1
-            #self.cursor.execute("SELECT id FROM service.teacher ORDER BY id DESC LIMIT 1;")
-            #self.last_id_teach = self.cursor.fetchall()[0][0] + 1
-            #self.cursor.execute(
-            #    f"INSERT INTO service.teacher (id, full_name, subject) VALUES ({self.last_id_teach}, '{row[2]}', {self.last_id_sub});")
-            #self.cursor.execute(f"INSERT INTO service.timetable (day, room_numb, start_time, subject,migalka)\
-            #                        VALUES ({self.day_of_week}, '{row[3]}', '{row[0]}','{row[1]}' {'odd' if self.top_week else 'even'})")
-            #self.conn.commit()
-            #except:
-                #p
 
 app = QApplication(sys.argv)
 win = MainWindow()
